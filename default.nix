@@ -14,5 +14,7 @@ rec {
   modules = import ./modules; # NixOS modules
   overlays = import ./overlays; # nixpkgs overlays
 
+  opensmt2                 = pkgs.callPackage ./pkgs/opensmt2                 {};
   meslo-nerd-powerlevel10k = pkgs.callPackage ./pkgs/meslo-nerd-powerlevel10k {};
+  sally                    = pkgs.callPackage ./pkgs/sally                    { inherit opensmt2; };
 }

@@ -1,8 +1,14 @@
 { pkgs }:
 
 with pkgs.lib; {
-  # Add your library functions here
-  #
-  # hexint = x: hexvals.${toLower x};
-}
 
+  mkHaskell = desc:
+    let
+      path = desc.path or ".";
+    in
+    (pkgs.haskellPackages.callCabal2nix
+      desc.name
+      ((pkgs.fetchFromGitHub desc.remote) + "/${path}")
+      { }).overrideDerivation (d: { sourceRoot = path; });
+
+}

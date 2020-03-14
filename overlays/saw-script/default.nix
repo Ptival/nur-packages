@@ -14,8 +14,8 @@ in
   haskellPackages = self.haskell.packages.${compiler}.extend (selfHaskell: superHaskell:
     rec {
       inherit haskellPackageFromGitHub;
-      base-compat           = self.callPackage ../../pkgs/haskellPackages/base-compat           { };
-      base-compat-batteries = self.callPackage ../../pkgs/haskellPackages/base-compat-batteries { };
+      base-compat           = self.callPackage ../../pkgs/haskellPackages/base-compat           {};
+      base-compat-batteries = self.callPackage ../../pkgs/haskellPackages/base-compat-batteries {};
     }
   );
 }

@@ -82,7 +82,8 @@ with pkgs.lib; rec {
       };
 
   stackShell =
-    { nixpkgsRev
+    { mkBuildInputs
+    , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix
     }:
@@ -96,9 +97,7 @@ with pkgs.lib; rec {
 
         inherit (pkg) name;
 
-        buildInputs = with setup.hsPkgs; [
-          # TODO: eventually I might want to add packages here via some argument
-        ];
+        buildInputs = mkBuildInputs pkgs hsPkgs;
 
       };
 

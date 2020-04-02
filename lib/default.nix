@@ -22,7 +22,8 @@ with pkgs.lib; rec {
   # https://medium.com/purely-functional/nix-setup-for-haskell-with-ghcide-and-hlint-3e268343efed
 
   computeHaskellSetup =
-    { nixpkgsRev
+    { ghcVersion
+    , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix
     }:
@@ -33,8 +34,6 @@ with pkgs.lib; rec {
         rev = nixpkgsRev;
       }) nixpkgsArgs;
 
-      inherit (pkgs.haskell) ghcVersion;
-
       hsPkgs = pkgs.haskell.packages.${ghcVersion};
 
       pkgDrv = callCabal2nixGitignore pkgs pkg.name pkg.path pkg.args;
@@ -42,12 +41,6 @@ with pkgs.lib; rec {
       pkgDeps = pkgDrv.getBuildInputs.haskellBuildInputs;
 
       ghc = hsPkgs.ghcWithHoogle (_: pkgDeps);
-
-      haskell = {
-        inherit ghc;
-        # Development tools
-        inherit (hsPkgs) cabal-install ghcide hlint stack;
-      };
 
     in
       {
@@ -59,19 +52,20 @@ with pkgs.lib; rec {
       };
 
   haskellDevShell =
-    { nixpkgsRev
+    { ghcVersion
+    , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix
     }:
     let
-      setup = computeHaskellSetup { inherit nixpkgsRev nixpkgsArgs pkg; };
+      setup = computeHaskellSetup { inherit ghcVersion nixpkgsRev nixpkgsArgs pkg; };
     in
 
       setup.pkgs.mkShell {
 
         buildInputs = with setup.hsPkgs; [
           cabal-install
-          ghc
+          setup.ghc # NOTE: this is the one with Hoogle set up
           ghcide
           hlint
           stack
@@ -82,22 +76,24 @@ with pkgs.lib; rec {
       };
 
   stackShell =
-    { mkBuildInputs
+    { ghcVersion
+    , mkBuildInputs
     , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix
     }:
     let
-      setup = computeHaskellSetup { inherit nixpkgsRev nixpkgsArgs pkg; };
+      setup = computeHaskellSetup { inherit ghcVersion nixpkgsRev nixpkgsArgs pkg; };
     in
 
       pkgs.haskell.lib.buildStackProject {
 
-        inherit (setup) ghc;
+        # grab the correct GHC without Hoogle support since stack does not need it
+        ghc = setup.pkgs.haskell.compiler.${ghcVersion};
 
         inherit (pkg) name;
 
-        buildInputs = mkBuildInputs pkgs hsPkgs;
+        buildInputs = mkBuildInputs setup.pkgs setup.hsPkgs;
 
       };
 

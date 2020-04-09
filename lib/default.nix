@@ -3,6 +3,7 @@
 with pkgs.lib; rec {
 
   callCabal2nixGitignore = pkgs: name: path: options:
+    with pkgs;
     pkgs.haskell.lib.overrideCabal
       (pkgs.haskellPackages.callCabal2nix name path options)
       (old: {
@@ -34,7 +35,10 @@ with pkgs.lib; rec {
         rev = nixpkgsRev;
       }) nixpkgsArgs;
 
-      hsPkgs = pkgs.haskell.packages.${ghcVersion};
+      hsPkgs = pkgs.haskellPackages;
+      # This was:
+      # hsPkgs = pkgs.haskell.packages.${ghcVersion};
+      # but I'm going to make a habit of using `haskellPackages` instead
 
       pkgDrv = callCabal2nixGitignore pkgs pkg.name pkg.path pkg.args;
 

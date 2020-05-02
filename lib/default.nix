@@ -60,6 +60,7 @@ with pkgs.lib; rec {
     , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix
+    , addBuildInputs ? pkgs: []
     }:
     let
       setup = computeHaskellSetup { inherit ghcVersion nixpkgsRev nixpkgsArgs pkg; };
@@ -72,8 +73,9 @@ with pkgs.lib; rec {
           setup.ghc # NOTE: this is the one with Hoogle set up
           ghcide
           hlint
+          ormolu
           stack
-        ];
+        ] ++ addBuildInputs setup.pkgs;
 
         NIX_GHC_LIBDIR = "${setup.ghc}/lib/ghc-${setup.ghc.version}";
 

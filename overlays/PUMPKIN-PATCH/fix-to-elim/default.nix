@@ -6,8 +6,8 @@ stdenv.mkDerivation rec {
     fetchSubmodules = true;
     owner = "uwplse";
     repo = "fix-to-elim";
-    rev = "6da6656912be659a27e877e628db4297b6ac3565";
-    sha256 = "10l9k3457nvahvigs37nvgk3syr8fqpics74a7h52j8xvf639i7a";
+    rev = "f8ba682c7399364c082cd9fc4c69050cc090f390";
+    sha256 = "1jn2qnik40hsijdsvvj5miyn6r46dpq4fkk4llbwda70cl2y35aj";
   };
 
   buildInputs = [

@@ -1,5 +1,5 @@
 { fetchgit, fetchFromGitHub, stdenv
-, bison, cmake, flex, gmp, makeWrapper, pkgconfig, readline
+, bison, cmake, flex, gmp, libedit, makeWrapper, pkgconfig, readline
 }:
 let
   googletest = fetchgit {
@@ -32,6 +32,7 @@ stdenv.mkDerivation rec {
     cmake
     flex
     gmp
+    libedit
     makeWrapper
     pkgconfig
     readline

@@ -15,6 +15,7 @@ rec {
   overlays = import ./overlays; # nixpkgs overlays
 
   abc                      = pkgs.callPackage ./pkgs/abc                      {};
+  haskell-language-server  = pkgs.callPackage ./pkgs/haskell-language-server  {};
   opensmt2                 = pkgs.callPackage ./pkgs/opensmt2                 {};
   meslo-nerd-powerlevel10k = pkgs.callPackage ./pkgs/meslo-nerd-powerlevel10k {};
   sally                    = pkgs.callPackage ./pkgs/sally                    { inherit opensmt2; };

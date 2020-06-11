@@ -2,6 +2,21 @@
 
 with pkgs.lib; rec {
 
+  # Turns a Haskell overlay into a Nixpkgs overlay that applies the given Haskell overlay
+  # mkHaskellOverlay should be of the form:
+  # self: super: selfH: superH: { hpkg1 = ...; hpkg2 = ...; }
+  # It is **not** responsible for updating the haskell or haskellPackages fields.
+  applyHaskellOverlay = ghcVersion: mkHaskellOverlay:
+    self: super:
+    let
+      haskellOverlay = mkHaskellOverlay self super;
+      haskellPackages = super.haskell.packages.${ghcVersion}.extend haskellOverlay;
+    in
+    {
+      inherit haskellPackages;
+      haskell = super.haskell // { packages = super.haskell.packages // { "${ghcVersion}" = haskellPackages; }; };
+    };
+
   callCabal2nixGitignore = pkgs: name: path: options:
     with pkgs;
     pkgs.haskell.lib.overrideCabal
@@ -35,10 +50,8 @@ with pkgs.lib; rec {
         rev = nixpkgsRev;
       }) nixpkgsArgs;
 
-      hsPkgs = pkgs.haskellPackages;
-      # This was:
+      hsPkgs = pkgs.haskellPackages; # should be equal to the one in ${ghcVersion} thanks to nixpkgsArgs
       # hsPkgs = pkgs.haskell.packages.${ghcVersion};
-      # but I'm going to make a habit of using `haskellPackages` instead
 
       pkgDrv = callCabal2nixGitignore pkgs pkg.name pkg.path pkg.args;
 
@@ -69,21 +82,27 @@ with pkgs.lib; rec {
       setup.pkgs.mkShell {
 
         buildInputs = with setup.hsPkgs; [
+          # cabal-helper # needed by hie?
           cabal-install
           setup.ghc # NOTE: this is the one with Hoogle set up
           ghcide
+          haskell-language-server
           hlint
+          hpack_0_34_2
           ormolu
-          stack
-        ] ++ addBuildInputs setup.pkgs;
+          # not using stack right now
+          # stack
+        ]
+        ++ addBuildInputs setup.pkgs;
 
+        CABAL_HELPER_DEBUG = 1; # TODO: let caller define such env vars
         NIX_GHC_LIBDIR = "${setup.ghc}/lib/ghc-${setup.ghc.version}";
 
       };
 
   stackShell =
     { ghcVersion
-    , mkBuildInputs
+    , mkBuildInputs ? pkgs: hsPkgs: []
     , nixpkgsRev
     , nixpkgsArgs # typically, a Haskell overlay
     , pkg         # arguments to callCabal2nix

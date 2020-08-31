@@ -14,9 +14,11 @@ in
 stdenv.mkDerivation rec {
 
   name = "opensmt2-${version}";
-  version = "20200312";
+  version = "2.0.1";
 
-  src = fetchGit {
+  src = fetchgit {
+    rev = "c857e2746ea20e901e201d9d909e2c119a63a625";
+    sha256 = "0ccldiajqjgm8hh66w9vazrbimrpbisbna2vp041pi9iddfir0ms";
     url = "https://github.com/usi-verification-and-security/opensmt.git";
   };
 
